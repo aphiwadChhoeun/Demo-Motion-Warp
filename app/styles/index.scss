@@ -1,0 +1,76 @@
+@import "./variables";
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: $backgroundColor;
+}
+
+.carousel__container {
+  position: relative;
+  margin-top: 4rem;
+
+  .carousel__wrapper {
+    position: absolute;
+    left: 100px;
+    top: 0;
+    display: flex;
+
+    .carousel__item {
+      margin: 0 60px 0 0;
+      width: 480px;
+      height: auto;
+
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+
+  .carousel__controls {
+    position: absolute;
+    top: 750px;
+    display: flex;
+    left: 50%;
+    transform: translateX(-50%);
+
+    .navigate {
+      margin-right: 120px;
+      cursor: pointer;
+      transition: all 200ms ease-out;
+
+      &:last-child {
+        margin: 0;
+      }
+    }
+
+    .back {
+      width: 0px;
+      height: 0px;
+      border-top: $controlSize solid $dark;
+      border-right: $controlSize solid $light;
+      border-bottom: $controlSize solid $dark;
+
+      &:hover {
+        border-right-color: $primary;
+      }
+    }
+
+    .next {
+      width: 0px;
+      height: 0px;
+      border-top: $controlSize solid $dark;
+      border-left: $controlSize solid $light;
+      border-bottom: $controlSize solid $dark;
+
+      &:hover {
+        border-left-color: $primary;
+      }
+    }
+  }
+}
