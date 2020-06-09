@@ -13,7 +13,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'docs'),
     filename: '[name].bundle.js',
-    publicPath: '/'
+    publicPath: env == 'development' ? '/' : '/Demo-Motion-Warp',
   },
 
   devServer: {
