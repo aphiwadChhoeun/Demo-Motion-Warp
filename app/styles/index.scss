@@ -1,76 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap");
 @import "./variables";
 
 body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
+  font-family: "Abril Fatface", cursive;
+}
+
+.container {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   background: $backgroundColor;
-}
 
-.carousel__container {
-  position: relative;
-  margin-top: 4rem;
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
 
-  .carousel__wrapper {
-    position: absolute;
-    left: 100px;
-    top: 0;
-    display: flex;
+    h1 {
+      position: absolute;
+      top: 4rem;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      padding: 0;
+      color: $dark;
+    }
 
-    .carousel__item {
-      margin: 0 60px 0 0;
-      width: 480px;
-      height: auto;
+    .links {
+      position: absolute;
+      left: 4rem;
+      bottom: 2rem;
 
-      img {
-        width: 100%;
-        height: auto;
+      a {
+        color: $primary;
+        margin-right: 2rem;
+
+        &:last-child {
+          margin: 0;
+        }
       }
     }
   }
 
-  .carousel__controls {
+  .item {
     position: absolute;
-    top: 750px;
-    display: flex;
     left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;
+    height: auto;
 
-    .navigate {
-      margin-right: 120px;
-      cursor: pointer;
-      transition: all 200ms ease-out;
-
-      &:last-child {
-        margin: 0;
-      }
+    img {
+      width: 100%;
+      height: auto;
     }
+  }
 
-    .back {
-      width: 0px;
-      height: 0px;
-      border-top: $controlSize solid $dark;
-      border-right: $controlSize solid $light;
-      border-bottom: $controlSize solid $dark;
-
-      &:hover {
-        border-right-color: $primary;
-      }
-    }
-
-    .next {
-      width: 0px;
-      height: 0px;
-      border-top: $controlSize solid $dark;
-      border-left: $controlSize solid $light;
-      border-bottom: $controlSize solid $dark;
-
-      &:hover {
-        border-left-color: $primary;
-      }
-    }
+  canvas {
+    position: fixed;
+    left: 0;
+    top: 0;
   }
 }

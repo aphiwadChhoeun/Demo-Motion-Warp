@@ -1,4 +1,9 @@
 import * as THREE from "three";
+import { gsap } from "gsap";
+
+Number.prototype.map = function (in_min, in_max, out_min, out_max) {
+  return ((this - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+};
 
 // EFFECT SHELL
 export default class EffectShell {
@@ -21,17 +26,73 @@ export default class EffectShell {
     );
     this.camera.position.z = 5;
 
+    this.mouse = new THREE.Vector2();
+    this.trailPosition = new THREE.Vector2();
+
     window.addEventListener("resize", this.onResize.bind(this));
     document.addEventListener("mousemove", (e) => {
       this.onMouseMove(e);
     });
 
-    this.loadTextures();
+    this.loadTexture();
   }
 
-  loadTextures() {
-    let planeGeometry = new THREE.PlaneGeometry(2, 2, 12, 12);
-    let planeMaterial = new THREE.MeshBasicMaterial({ color: 0xa8e6cf });
+  loadTexture() {
+    let imgDom = document.querySelector(".item img");
+    let computedStyle = window.getComputedStyle(imgDom);
+    let textureLoader = new THREE.TextureLoader();
+    this.texture = textureLoader.load(imgDom.getAttribute("src"));
+    imgDom.style.opacity = 0.0;
+    let width = parseFloat(computedStyle.getPropertyValue("width"));
+    let height = parseFloat(computedStyle.getPropertyValue("height"));
+
+    console.log(`${width}:${height}`);
+
+    let planeGeometry = new THREE.PlaneGeometry(
+      width * (this.viewSize.width / this.viewport.width),
+      height * (this.viewSize.height / this.viewport.height),
+      12,
+      12
+    );
+    this.uniforms = {
+      uTexture: {
+        value: this.texture,
+      },
+      uOffset: {
+        value: new THREE.Vector2(0.0, 0.0),
+      },
+    };
+    let planeMaterial = new THREE.ShaderMaterial({
+      uniforms: this.uniforms,
+      vertexShader: `
+        varying vec2 vUv;
+        uniform vec2 uOffset;
+
+        #define PI 3.1415926535897932384626433832795
+
+        vec3 deformPosition(vec3 position, vec2 uv, vec2 offset) {
+          position.x = position.x + (sin(uv.y * PI) * offset.x);
+          position.y = position.y + (sin(uv.x * PI) * offset.y);
+          return position;
+        }
+
+        void main() {
+          vUv = uv;
+          vec3 newPosition = position;
+          newPosition = deformPosition(position, uv, uOffset);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+
+        varying vec2 vUv;
+
+        void main() {
+          gl_FragColor = texture2D(uTexture, vUv);
+        }
+      `,
+    });
     this.plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
     this.scene.add(this.plane);
@@ -44,8 +105,30 @@ export default class EffectShell {
   }
 
   animate() {
-    this.plane.rotation.x += 0.1 * 0.08;
-    this.plane.rotation.y += 0.1 * 0.08;
+    let x = this.mouse.x.map(
+      -1,
+      1,
+      -this.viewSize.width / 2,
+      this.viewSize.width / 2
+    );
+    let y = this.mouse.y.map(
+      -1,
+      1,
+      -this.viewSize.height / 2,
+      this.viewSize.height / 2
+    );
+
+    this.trailPosition.set(x, y);
+    gsap.to(this.plane.position, {
+      x: x,
+      y: y,
+      ease: "power3.out",
+    });
+
+    let offset = this.plane.position.clone().sub(this.trailPosition);
+    offset = offset.multiplyScalar(-0.5);
+
+    this.uniforms.uOffset.value = offset;
 
     this.render();
 
@@ -59,7 +142,10 @@ export default class EffectShell {
   }
 
   onMouseMove(e) {
-    console.log(`x: ${e.clientX}, ${e.clientY}`);
+    this.mouse.x = (e.clientX / this.viewport.width) * 2 - 1;
+    this.mouse.y = -(e.clientY / this.viewport.height) * 2 + 1;
+
+    // console.log(this.mouse);
   }
 
   get viewport() {
