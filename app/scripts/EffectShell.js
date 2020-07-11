@@ -126,7 +126,7 @@ export default class EffectShell {
     });
 
     let offset = this.plane.position.clone().sub(this.trailPosition);
-    offset = offset.multiplyScalar(-0.5);
+    offset = offset.multiplyScalar(-0.8);
 
     this.uniforms.uOffset.value = offset;
 
